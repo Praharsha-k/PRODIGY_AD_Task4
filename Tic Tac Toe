@@ -1,0 +1,84 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class TicTacToe:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Tic Tac Toe")
+        self.player = "X"  # Start with Player X
+        self.buttons = [[None for _ in range(3)] for _ in range(3)]  # 3x3 grid
+        self.create_board()
+        
+    def create_board(self):
+        for row in range(3):
+            for col in range(3):
+                button = tk.Button(self.root, text="", font=('Arial', 40), width=5, height=2,
+                                   command=lambda r=row, c=col: self.on_button_click(r, c))
+                button.grid(row=row, column=col)
+                self.buttons[row][col] = button
+                
+        # Reset button
+        reset_button = tk.Button(self.root, text="Reset", font=('Arial', 20), command=self.reset_game)
+        reset_button.grid(row=3, column=0, columnspan=3, sticky="nsew")
+    
+    def on_button_click(self, row, col):
+        # If button is already clicked, do nothing
+        if self.buttons[row][col]["text"] != "":
+            return
+        
+        # Set the button text to the current player's symbol
+        self.buttons[row][col]["text"] = self.player
+        
+        # Check for a win or draw
+        if self.check_winner():
+            messagebox.showinfo("Game Over", f"Player {self.player} wins!")
+            self.disable_buttons()
+        elif self.check_draw():
+            messagebox.showinfo("Game Over", "It's a draw!")
+            self.disable_buttons()
+        else:
+            # Switch to the other player
+            self.player = "O" if self.player == "X" else "X"
+    
+    def check_winner(self):
+        # Check rows, columns, and diagonals for a win
+        for i in range(3):
+            # Check rows
+            if self.buttons[i][0]["text"] == self.buttons[i][1]["text"] == self.buttons[i][2]["text"] != "":
+                return True
+            # Check columns
+            if self.buttons[0][i]["text"] == self.buttons[1][i]["text"] == self.buttons[2][i]["text"] != "":
+                return True
+        # Check diagonals
+        if self.buttons[0][0]["text"] == self.buttons[1][1]["text"] == self.buttons[2][2]["text"] != "":
+            return True
+        if self.buttons[0][2]["text"] == self.buttons[1][1]["text"] == self.buttons[2][0]["text"] != "":
+            return True
+        return False
+    
+    def check_draw(self):
+        # If all buttons are filled and no winner, it's a draw
+        for row in self.buttons:
+            for button in row:
+                if button["text"] == "":
+                    return False
+        return True
+    
+    def disable_buttons(self):
+        # Disable all buttons after the game ends
+        for row in self.buttons:
+            for button in row:
+                button.config(state="disabled")
+    
+    def reset_game(self):
+        # Reset the game to the initial state
+        self.player = "X"
+        for row in range(3):
+            for col in range(3):
+                self.buttons[row][col]["text"] = ""
+                self.buttons[row][col].config(state="normal")
+
+# Initialize the Tkinter window
+root = tk.Tk()
+game = TicTacToe(root)
+root.mainloop()
